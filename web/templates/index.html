@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système d'Irrigation Intelligent - IA Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .decision-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .switch-label {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 100px;
+            height: 50px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 50px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 38px;
+            width: 38px;
+            left: 6px;
+            bottom: 6px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(50px);
+        }
+
+        .decision-text {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .decision-irriguer {
+            color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .decision-ne-pas-irriguer {
+            color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .explication {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #45a049;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #da190b;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .info-card {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .timestamp {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .scheduler-controls {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .scheduler-controls h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .scheduler-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .scheduler-input input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌾 Système d'Irrigation Intelligent</h1>
+            <p>Décision automatisée basée sur l'IA et l'analyse de données</p>
+        </div>
+
+        <div class="main-card">
+            <div class="decision-section">
+                <h2>État Actuel du Système</h2>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Analyse en cours...</p>
+                </div>
+
+                <div id="decision-content">
+                    <div class="switch-container">
+                        <span class="switch-label">Pompe d'Irrigation</span>
+                        <label class="switch">
+                            <input type="checkbox" id="irrigation-switch" disabled>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="decision-text" id="decision-text">Chargement...</div>
+                    
+                    <div class="explication" id="explication">
+                        En attente d'une décision...
+                    </div>
+
+                    <div class="timestamp" id="timestamp"></div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn-primary" onclick="makeDecision()">
+                        🔄 Lancer la Décision
+                    </button>
+                    <button class="btn-secondary" onclick="refreshStatus()">
+                        🔍 Actualiser
+                    </button>
+                </div>
+            </div>
+
+            <div class="scheduler-controls">
+                <h3>⏰ Planification Automatique</h3>
+                <div class="scheduler-input">
+                    <label>Intervalle (heures):</label>
+                    <input type="number" id="interval-hours" value="6" min="1" max="24">
+                    <button class="btn-secondary" onclick="startScheduler()">Démarrer Auto</button>
+                    <button class="btn-danger" onclick="stopScheduler()">Arrêter Auto</button>
+                </div>
+                <div id="scheduler-status"></div>
+            </div>
+
+            <div class="info-grid" id="info-grid">
+                <!-- Les informations seront chargées dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Charger la dernière décision au chargement de la page
+        window.addEventListener('DOMContentLoaded', function() {
+            refreshStatus();
+            updateSchedulerStatus();
+            setInterval(updateSchedulerStatus, 30000); // Mettre à jour toutes les 30 secondes
+        });
+
+        async function makeDecision() {
+            const loading = document.getElementById('loading');
+            const decisionContent = document.getElementById('decision-content');
+            
+            loading.classList.add('active');
+            decisionContent.style.opacity = '0.5';
+
+            try {
+                const response = await fetch('/api/decision', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateUI(result.data);
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur lors de la prise de décision: ' + error);
+            } finally {
+                loading.classList.remove('active');
+                decisionContent.style.opacity = '1';
+            }
+        }
+
+        async function refreshStatus() {
+            try {
+                const response = await fetch('/api/decision/last');
+                const result = await response.json();
+                
+                if (result.success && result.data.timestamp) {
+                    updateUI(result.data);
+                }
+
+                // Charger aussi les informations système
+                const statusResponse = await fetch('/api/status');
+                const statusResult = await statusResponse.json();
+                
+                if (statusResult.success) {
+                    updateInfoGrid(statusResult.data);
+                }
+            } catch (error) {
+                console.error('Erreur lors du rafraîchissement:', error);
+            }
+        }
+
+        function updateUI(data) {
+            const decision = data.decision;
+            const switchElement = document.getElementById('irrigation-switch');
+            const decisionText = document.getElementById('decision-text');
+            const explication = document.getElementById('explication');
+            const timestamp = document.getElementById('timestamp');
+
+            // Mettre à jour le switch
+            switchElement.checked = (decision === 'IRRIGUER');
+
+            // Mettre à jour le texte de décision
+            decisionText.textContent = decision;
+            decisionText.className = 'decision-text ' + 
+                (decision === 'IRRIGUER' ? 'decision-irriguer' : 'decision-ne-pas-irriguer');
+
+            // Mettre à jour l'explication
+            explication.textContent = data.explication || 'Aucune explication disponible';
+
+            // Mettre à jour le timestamp
+            if (data.timestamp) {
+                const date = new Date(data.timestamp);
+                timestamp.textContent = 'Dernière décision: ' + date.toLocaleString('fr-FR');
+            }
+        }
+
+        function updateInfoGrid(statusData) {
+            const infoGrid = document.getElementById('info-grid');
+            const weather = statusData.current_weather || {};
+            const historical = statusData.historical_summary || {};
+
+            infoGrid.innerHTML = `
+                <div class="info-card">
+                    <h3>🌡️ Température</h3>
+                    <p>${weather.temperature ? weather.temperature.toFixed(1) + '°C' : 'N/A'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>💧 Humidité</h3>
+                    <p>${weather.humidity ? weather.humidity.toFixed(1) + '%' : 'N/A'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>🌧️ Pluviométrie</h3>
+                    <p>${weather.rainfall ? weather.rainfall.toFixed(1) + 'mm' : '0mm'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>📊 Données Historiques</h3>
+                    <p>${historical.total_records || 0} enregistrements</p>
+                </div>
+            `;
+        }
+
+        async function startScheduler() {
+            const intervalHours = parseInt(document.getElementById('interval-hours').value);
+            
+            try {
+                const response = await fetch('/api/scheduler/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ interval_hours: intervalHours })
+                });
+
+                const result = await response.json();
+                alert(result.message || 'Scheduler démarré');
+                updateSchedulerStatus();
+            } catch (error) {
+                alert('Erreur: ' + error);
+            }
+        }
+
+        async function stopScheduler() {
+            try {
+                const response = await fetch('/api/scheduler/stop', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                alert(result.message || 'Scheduler arrêté');
+                updateSchedulerStatus();
+            } catch (error) {
+                alert('Erreur: ' + error);
+            }
+        }
+
+        async function updateSchedulerStatus() {
+            try {
+                const response = await fetch('/api/scheduler/status');
+                const result = await response.json();
+                
+                const statusDiv = document.getElementById('scheduler-status');
+                if (result.success && result.data.jobs.length > 0) {
+                    const job = result.data.jobs[0];
+                    const nextRun = job.next_run ? new Date(job.next_run).toLocaleString('fr-FR') : 'N/A';
+                    statusDiv.innerHTML = `<p><strong>Statut:</strong> Actif | <strong>Prochaine exécution:</strong> ${nextRun}</p>`;
+                } else {
+                    statusDiv.innerHTML = '<p><strong>Statut:</strong> Inactif</p>';
+                }
+            } catch (error) {
+                console.error('Erreur lors de la mise à jour du statut:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+
