@@ -75,12 +75,22 @@ def get_last_decision():
 def get_status():
     """Récupère le statut du système"""
     status = decision_engine.get_system_status()
+    
+    # Ajouter les alertes des capteurs si disponibles
+    sensor_alerts = []
+    if 'current_sensors' in status and status.get('current_sensors', {}).get('available', False):
+        from app.sensor_data_loader import SensorDataLoader
+        from config import SENSOR_CSV_DATA_PATH
+        sensor_loader = SensorDataLoader(SENSOR_CSV_DATA_PATH)
+        sensor_alerts = sensor_loader.get_sensor_alerts()
+    
     return jsonify({
         'success': True,
         'data': {
             **status,
             'last_decision': last_decision,
-            'auto_scheduler_running': scheduler.running
+            'auto_scheduler_running': scheduler.running,
+            'sensor_alerts': sensor_alerts
         }
     })
 
@@ -160,4 +170,5 @@ if __name__ == '__main__':
         print(f"Erreur lors de la décision initiale : {e}")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 

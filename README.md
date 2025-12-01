@@ -216,8 +216,24 @@ AUTO_DECISION_INTERVAL_HOURS=6  # Intervalle en heures
 
 ## 🐛 Dépannage
 
+### Erreur lors de l'installation : pandas ne peut pas être compilé (Python 3.13)
+
+**Problème** : Si vous utilisez Python 3.13, pandas 2.1.4 n'est pas compatible. Les versions récentes de pandas (>=2.2.0) sont nécessaires.
+
+**Solution** :
+1. Le fichier `requirements.txt` a été mis à jour avec des versions compatibles
+2. Réessayez l'installation : `pip install -r requirements.txt`
+3. Si le problème persiste, installez les packages individuellement :
+   ```bash
+   pip install pandas>=2.2.0
+   pip install langchain langchain-openai langchain-community
+   pip install openai flask python-dotenv requests apscheduler
+   ```
+4. **Alternative** : Utilisez Python 3.11 ou 3.12 qui sont plus stables avec toutes les bibliothèques
+
 ### Erreur : "OPENAI_API_KEY doit être défini"
 - Vérifiez que le fichier `.env` existe et contient votre clé API OpenAI
+- Le fichier doit être à la racine du projet
 
 ### Erreur : "Le fichier CSV n'existe pas"
 - Vérifiez que le fichier `data/historical_data.csv` existe
@@ -226,6 +242,14 @@ AUTO_DECISION_INTERVAL_HOURS=6  # Intervalle en heures
 ### Les données météo ne se chargent pas
 - Vérifiez votre clé API OpenWeatherMap
 - Le système utilisera des valeurs par défaut en cas d'erreur
+
+### Erreur : "ModuleNotFoundError: No module named 'langchain'"
+- Assurez-vous d'avoir installé toutes les dépendances : `pip install -r requirements.txt`
+- Vérifiez que vous utilisez le bon environnement Python
+
+### Problèmes de compatibilité avec les versions récentes de LangChain
+- Le code a été mis à jour pour être compatible avec LangChain >= 0.3.0
+- Si vous rencontrez des erreurs d'import, mettez à jour LangChain : `pip install --upgrade langchain langchain-openai langchain-community`
 
 ## 📝 Notes Importantes
 

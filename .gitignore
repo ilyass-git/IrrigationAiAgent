@@ -24,8 +24,8 @@ wheels/
 *.egg
 
 # Environment variables
-.env
-.env.local
+
+
 
 # IDE
 .vscode/
@@ -56,4 +56,5 @@ instance/
 .pytest_cache/
 .coverage
 htmlcov/
+
 

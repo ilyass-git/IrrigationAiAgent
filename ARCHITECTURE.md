@@ -236,3 +236,4 @@ Le système est conçu pour être facilement extensible :
 3. **End-to-End** : Interface web complète
 4. **Edge Cases** : Données manquantes, API indisponible, etc.
 
+

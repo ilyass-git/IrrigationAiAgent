@@ -417,20 +417,79 @@
             const infoGrid = document.getElementById('info-grid');
             const weather = statusData.current_weather || {};
             const historical = statusData.historical_summary || {};
+            const sensors = statusData.current_sensors || {};
+            const sensorAlerts = statusData.sensor_alerts || [];
 
-            infoGrid.innerHTML = `
+            let sensorCards = '';
+            if (sensors.available) {
+                // Déterminer la couleur selon l'humidité du sol
+                let soilMoistureColor = '#4CAF50'; // Vert par défaut
+                if (sensors.humidite_sol < 25) soilMoistureColor = '#f44336'; // Rouge
+                else if (sensors.humidite_sol < 30) soilMoistureColor = '#ff9800'; // Orange
+                else if (sensors.humidite_sol > 70) soilMoistureColor = '#2196F3'; // Bleu
+
+                // Déterminer la couleur selon le niveau du réservoir
+                let reservoirColor = '#4CAF50'; // Vert par défaut
+                if (sensors.niveau_reservoir < 20) reservoirColor = '#f44336'; // Rouge
+                else if (sensors.niveau_reservoir < 30) reservoirColor = '#ff9800'; // Orange
+
+                sensorCards = `
+                    <div class="info-card" style="border-left: 4px solid ${soilMoistureColor};">
+                        <h3>🌱 Humidité du Sol</h3>
+                        <p style="font-size: 1.3em; font-weight: bold; color: ${soilMoistureColor};">
+                            ${sensors.humidite_sol ? sensors.humidite_sol.toFixed(1) + '%' : 'N/A'}
+                        </p>
+                        <small>${sensors.humidite_sol < 30 ? '⚠️ Sol sec' : sensors.humidite_sol > 70 ? '⚠️ Sol saturé' : '✓ Optimal'}</small>
+                    </div>
+                    <div class="info-card">
+                        <h3>🌡️ Température Sol</h3>
+                        <p>${sensors.temperature_sol ? sensors.temperature_sol.toFixed(1) + '°C' : 'N/A'}</p>
+                    </div>
+                    <div class="info-card" style="border-left: 4px solid ${reservoirColor};">
+                        <h3>💧 Réservoir</h3>
+                        <p style="font-size: 1.3em; font-weight: bold; color: ${reservoirColor};">
+                            ${sensors.niveau_reservoir ? sensors.niveau_reservoir.toFixed(1) + '%' : 'N/A'}
+                        </p>
+                    </div>
+                    <div class="info-card">
+                        <h3>💨 Évapotranspiration</h3>
+                        <p>${sensors.evapotranspiration ? sensors.evapotranspiration.toFixed(1) + ' mm/j' : 'N/A'}</p>
+                    </div>
+                `;
+            } else {
+                sensorCards = `
+                    <div class="info-card">
+                        <h3>📡 Capteurs</h3>
+                        <p style="color: #999;">Données non disponibles</p>
+                    </div>
+                `;
+            }
+
+            // Afficher les alertes si présentes
+            let alertsHtml = '';
+            if (sensorAlerts && sensorAlerts.length > 0) {
+                alertsHtml = `
+                    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px;">
+                        <h3 style="color: #856404; margin-bottom: 10px;">🚨 Alertes des Capteurs</h3>
+                        ${sensorAlerts.map(alert => `<p style="color: #856404; margin: 5px 0;">${alert}</p>`).join('')}
+                    </div>
+                `;
+            }
+
+            infoGrid.innerHTML = alertsHtml + `
                 <div class="info-card">
-                    <h3>🌡️ Température</h3>
+                    <h3>🌡️ Température Air</h3>
                     <p>${weather.temperature ? weather.temperature.toFixed(1) + '°C' : 'N/A'}</p>
                 </div>
                 <div class="info-card">
-                    <h3>💧 Humidité</h3>
+                    <h3>💨 Humidité Air</h3>
                     <p>${weather.humidity ? weather.humidity.toFixed(1) + '%' : 'N/A'}</p>
                 </div>
                 <div class="info-card">
                     <h3>🌧️ Pluviométrie</h3>
                     <p>${weather.rainfall ? weather.rainfall.toFixed(1) + 'mm' : '0mm'}</p>
                 </div>
+                ${sensorCards}
                 <div class="info-card">
                     <h3>📊 Données Historiques</h3>
                     <p>${historical.total_records || 0} enregistrements</p>
@@ -492,4 +551,5 @@
     </script>
 </body>
 </html>
+
 
