@@ -137,6 +137,23 @@
             font-size: 1.1em;
             line-height: 1.6;
             color: #555;
+            text-align: left;
+        }
+
+        .explication ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .explication li {
+            margin-bottom: 6px;
+        }
+
+        .explication .check-icon {
+            margin-right: 8px;
+            color: #4CAF50;
+            font-weight: bold;
         }
 
         .buttons {
@@ -403,8 +420,26 @@
             decisionText.className = 'decision-text ' + 
                 (decision === 'IRRIGUER' ? 'decision-irriguer' : 'decision-ne-pas-irriguer');
 
-            // Mettre à jour l'explication
-            explication.textContent = data.explication || 'Aucune explication disponible';
+            // Mettre à jour l'explication sous forme de liste avec un signe de succès
+            const explanationText = data.explication || 'Aucune explication disponible';
+
+            // Découper l'explication en phrases (simple découpe sur . ! ?)
+            const rawSentences = explanationText
+                .split(/[.!?]\s+/)
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+
+            if (rawSentences.length === 0) {
+                explication.textContent = explanationText;
+            } else {
+                const itemsHtml = rawSentences
+                    .map(sentence => {
+                        const cleaned = sentence.replace(/^[-•\s]+/, '');
+                        return `<li><span class="check-icon">✅</span>${cleaned}</li>`;
+                    })
+                    .join('');
+                explication.innerHTML = `<ul>${itemsHtml}</ul>`;
+            }
 
             // Mettre à jour le timestamp
             if (data.timestamp) {

@@ -237,3 +237,5 @@ Le système est conçu pour être facilement extensible :
 4. **Edge Cases** : Données manquantes, API indisponible, etc.
 
 
+
+
