@@ -3,7 +3,11 @@ Module de récupération des données météorologiques en temps réel
 """
 import requests
 from typing import Dict, Optional
+import time
+import logging
 from config import WEATHER_API_KEY, WEATHER_API_URL, LATITUDE, LONGITUDE, CITY_NAME
+
+logger = logging.getLogger(__name__)
 
 
 class WeatherAPI:
@@ -24,6 +28,9 @@ class WeatherAPI:
         Returns:
             Dictionnaire contenant les données météo formatées
         """
+        start_time = time.time()
+        logger.info("[WEATHER] Récupération des données météo...")
+        
         try:
             # Essayer d'abord avec les coordonnées
             params = {
@@ -34,7 +41,8 @@ class WeatherAPI:
                 'lang': 'fr'
             }
             
-            response = requests.get(self.api_url, params=params, timeout=10)
+            logger.info(f"[WEATHER] Appel API OpenWeatherMap (timeout: 5s)...")
+            response = requests.get(self.api_url, params=params, timeout=5)
             response.raise_for_status()
             data = response.json()
             
@@ -52,11 +60,18 @@ class WeatherAPI:
                 'timestamp': data.get('dt', None)
             }
             
+            duration = time.time() - start_time
+            logger.info(f"[WEATHER] ✓ Données météo récupérées en {duration:.2f}s - Temp: {weather_data['temperature']}°C")
+            
             return weather_data
             
+        except requests.exceptions.Timeout:
+            duration = time.time() - start_time
+            logger.warning(f"[WEATHER] ⚠ Timeout après {duration:.2f}s, utilisation de valeurs par défaut")
+            return self._get_default_weather()
         except requests.exceptions.RequestException as e:
-            print(f"Erreur lors de la récupération des données météo : {e}")
-            # Retourner des données par défaut en cas d'erreur
+            duration = time.time() - start_time
+            logger.warning(f"[WEATHER] ⚠ Erreur après {duration:.2f}s: {e}, utilisation de valeurs par défaut")
             return self._get_default_weather()
     
     def _get_default_weather(self) -> Dict:
@@ -103,6 +118,9 @@ Couverture nuageuse : {weather['clouds']}%
 """
         
         return summary
+
+
+
 
 
 

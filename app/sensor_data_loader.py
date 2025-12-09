@@ -186,7 +186,8 @@ Conductivité électrique : {current_data['conductivite_electrique']:.1f} dS/m
         
         return alerts
     
-    def generate_new_sensor_reading(self, current_weather: Dict, irrigation_decision: str = "NE PAS IRRIGUER") -> Dict:
+    def generate_new_sensor_reading(self, current_weather: Dict, irrigation_decision: str = "NE PAS IRRIGUER",
+                                   irrigation_duration_minutes: float = 0.0) -> Dict:
         """
         Génère une nouvelle lecture de capteurs basée sur les conditions actuelles
         
@@ -227,9 +228,10 @@ Conductivité électrique : {current_data['conductivite_electrique']:.1f} dS/m
         
         # 3. Augmentation due à l'irrigation (si décision d'irriguer)
         gain_irrigation = 0.0
-        if irrigation_decision == "IRRIGUER":
-            # Irrigation ajoute environ 15-25% d'humidité
-            gain_irrigation = random.uniform(15.0, 25.0)
+        if irrigation_decision == "IRRIGUER" and irrigation_duration_minutes > 0:
+            duration_factor = min(max(irrigation_duration_minutes / 30.0, 0.3), 2.0)  # 30 min = facteur 1
+            base_gain = random.uniform(12.0, 20.0)
+            gain_irrigation = base_gain * duration_factor
         
         # Calcul de la nouvelle humidité
         humidite_sol = humidite_sol_prev - loss_et + gain_rain + gain_irrigation
@@ -243,9 +245,9 @@ Conductivité électrique : {current_data['conductivite_electrique']:.1f} dS/m
         
         # Niveau du réservoir : diminue si irrigation, augmente avec la pluie
         niveau_reservoir_prev = previous_data.get('niveau_reservoir', 75.0)
-        if irrigation_decision == "IRRIGUER":
-            # Irrigation consomme environ 5-10% du réservoir
-            niveau_reservoir = niveau_reservoir_prev - random.uniform(5.0, 10.0)
+        if irrigation_decision == "IRRIGUER" and irrigation_duration_minutes > 0:
+            consommation = random.uniform(4.0, 8.0) * min(irrigation_duration_minutes / 30.0, 2.0)
+            niveau_reservoir = niveau_reservoir_prev - consommation
         else:
             # Recharge naturelle avec la pluie (environ 0.5% par mm de pluie)
             niveau_reservoir = niveau_reservoir_prev + (rainfall * 0.5)

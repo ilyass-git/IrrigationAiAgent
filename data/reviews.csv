@@ -1,0 +1,59 @@
+review_id,decision_id,decision,decision_timestamp,review_timestamp,expert_name,stars,comment
+a1b2c3d4-1111-2222-3333-444444444444,dec001,IRRIGUER,2021-02-13T08:00:00,2021-02-13T08:15:00,Ing. Ahmed Benali,5,Excellent choix d'irriguer avec un sol à 27% d'humidité. La durée de 45 minutes était appropriée.
+b2c3d4e5-2222-3333-4444-555555555555,dec002,IRRIGUER,2021-03-05T09:00:00,2021-03-05T09:20:00,Dr. Fatima Alami,4,Bonne décision d'irriguer avec humidité à 25.5%. La température élevée justifiait l'irrigation.
+c3d4e5f6-3333-4444-5555-666666666666,dec003,IRRIGUER,2021-03-16T10:00:00,2021-03-16T10:30:00,Ing. Karim Tazi,5,Urgence bien identifiée : sol à 19% d'humidité. Irrigation immédiate nécessaire et bien exécutée.
+d4e5f6g7-4444-5555-6666-777777777777,dec004,IRRIGUER,2021-04-10T11:00:00,2021-04-10T11:45:00,Dr. Youssef Idrissi,4,Sol très sec à 18.5%. Bonne réaction avec irrigation de 50 minutes. Peut-être un peu long mais acceptable.
+e5f6g7h8-5555-6666-7777-888888888888,dec005,IRRIGUER,2021-05-20T12:00:00,2021-05-20T12:30:00,Ing. Leila Bensaid,5,Parfait : sol critique à 15.5% avec évapotranspiration élevée. Irrigation bien dosée.
+f6g7h8i9-6666-7777-8888-999999999999,dec006,IRRIGUER,2021-06-10T13:00:00,2021-06-10T13:20:00,Dr. Omar Cherkaoui,4,Sol sec à 13.8% en période chaude. Bonne décision d'irriguer 40 minutes.
+g7h8i9j0-7777-8888-9999-000000000000,dec007,IRRIGUER,2021-07-05T14:00:00,2021-07-05T14:15:00,Ing. Salma Amrani,5,Excellent : sol à 11.8% avec température élevée. Irrigation urgente bien gérée.
+h8i9j0k1-8888-9999-0000-111111111111,dec008,NE PAS IRRIGUER,2021-08-15T15:00:00,2021-08-15T15:10:00,Dr. Mehdi Alaoui,5,Parfait : sol saturé à 65.2% après pluie. Bonne décision de ne pas irriguer.
+i9j0k1l2-9999-0000-1111-222222222222,dec009,NE PAS IRRIGUER,2021-08-17T16:00:00,2021-08-17T16:05:00,Ing. Nadia El Fassi,5,Excellent jugement : sol à 72.1% d'humidité. Éviter la sur-irrigation était crucial.
+j0k1l2m3-0000-1111-2222-333333333333,dec010,NE PAS IRRIGUER,2021-09-10T17:00:00,2021-09-10T17:08:00,Dr. Amine Bennis,4,Bonne décision : sol à 78.2% après pluies. Pas besoin d'irrigation supplémentaire.
+k1l2m3n4-1111-2222-3333-444444444444,dec011,NE PAS IRRIGUER,2021-09-12T18:00:00,2021-09-12T18:12:00,Ing. Imane Khadiri,5,Parfait : sol saturé à 82.8%. Risque de pourriture évité grâce à cette décision.
+l2m3n4o5-2222-3333-4444-555555555555,dec012,IRRIGUER,2022-02-15T08:30:00,2022-02-15T08:45:00,Dr. Reda Alaoui,4,Sol à 35.2% en début de saison. Bonne décision d'irriguer modérément.
+m3n4o5p6-3333-4444-5555-666666666666,dec013,IRRIGUER,2022-03-10T09:15:00,2022-03-10T09:35:00,Ing. Hicham Tazi,5,Urgence bien détectée : sol à 28.5% avec température montante. Irrigation nécessaire.
+n4o5p6q7-4444-5555-6666-777777777777,dec014,IRRIGUER,2022-04-05T10:00:00,2022-04-05T10:25:00,Dr. Souad Benali,4,Sol sec à 22.1%. Bonne réaction avec irrigation de 35 minutes.
+o5p6q7r8-5555-6666-7777-888888888888,dec015,IRRIGUER,2022-05-15T11:00:00,2022-05-15T11:30:00,Ing. Tarik Amrani,5,Excellent : sol critique à 18.8% en période chaude. Irrigation bien dosée.
+p6q7r8s9-6666-7777-8888-999999999999,dec016,IRRIGUER,2022-06-20T12:00:00,2022-06-20T12:20:00,Dr. Lamia Cherkaoui,4,Sol très sec à 15.2%. Bonne décision d'irriguer 45 minutes.
+q7r8s9t0-7777-8888-9999-000000000000,dec017,IRRIGUER,2022-07-10T13:00:00,2022-07-10T13:15:00,Ing. Yassine Idrissi,5,Urgence critique : sol à 12.8% avec évapotranspiration maximale. Irrigation immédiate justifiée.
+r8s9t0u1-8888-9999-0000-111111111111,dec018,NE PAS IRRIGUER,2022-08-20T14:00:00,2022-08-20T14:10:00,Dr. Zineb Bensaid,5,Parfait jugement : sol à 68.5% après pluies. Pas d'irrigation nécessaire.
+s9t0u1v2-9999-0000-1111-222222222222,dec019,NE PAS IRRIGUER,2022-09-15T15:00:00,2022-09-15T15:08:00,Ing. Anass El Fassi,4,Bonne décision : sol à 75.2% d'humidité. Éviter la sur-irrigation.
+t0u1v2w3-0000-1111-2222-333333333333,dec020,IRRIGUER,2023-02-20T08:45:00,2023-02-20T09:00:00,Dr. Hiba Khadiri,4,Sol à 32.5% en début de saison. Irrigation modérée appropriée.
+u1v2w3x4-1111-2222-3333-444444444444,dec021,IRRIGUER,2023-03-15T09:30:00,2023-03-15T09:50:00,Ing. Ayoub Alaoui,5,Excellent : sol à 26.8% avec température en hausse. Irrigation bien gérée.
+v2w3x4y5-2222-3333-4444-555555555555,dec022,IRRIGUER,2023-04-10T10:15:00,2023-04-10T10:40:00,Dr. Ines Tazi,4,Sol sec à 20.5%. Bonne décision d'irriguer 40 minutes.
+w3x4y5z6-3333-4444-5555-666666666666,dec023,IRRIGUER,2023-05-20T11:30:00,2023-05-20T12:00:00,Ing. Othmane Benali,5,Urgence bien identifiée : sol à 17.2% avec conditions chaudes. Irrigation nécessaire.
+x4y5z6a7-4444-5555-6666-777777777777,dec024,IRRIGUER,2023-06-15T12:15:00,2023-06-15T12:35:00,Dr. Salma Amrani,4,Sol très sec à 14.5%. Bonne réaction avec irrigation de 50 minutes.
+y5z6a7b8-5555-6666-7777-888888888888,dec025,IRRIGUER,2023-07-10T13:00:00,2023-07-10T13:20:00,Ing. Mehdi Cherkaoui,5,Parfait : sol critique à 11.8% en période de forte chaleur. Irrigation urgente bien exécutée.
+z6a7b8c9-6666-7777-8888-999999999999,dec026,NE PAS IRRIGUER,2023-08-25T14:30:00,2023-08-25T14:40:00,Dr. Nadia Idrissi,5,Excellent jugement : sol à 70.2% après pluies. Pas besoin d'irrigation.
+a7b8c9d0-7777-8888-9999-000000000000,dec027,NE PAS IRRIGUER,2023-09-20T15:15:00,2023-09-20T15:25:00,Ing. Youssef Bensaid,4,Bonne décision : sol à 76.5% d'humidité. Éviter la sur-irrigation.
+b8c9d0e1-8888-9999-0000-111111111111,dec028,IRRIGUER,2021-05-05T10:00:00,2021-05-05T10:20:00,Dr. Leila El Fassi,4,Sol à 25.2% avec température modérée. Irrigation modérée appropriée.
+c9d0e1f2-9999-0000-1111-222222222222,dec029,IRRIGUER,2021-06-15T11:00:00,2021-06-15T11:25:00,Ing. Omar Khadiri,5,Excellent : sol sec à 20.5% en période chaude. Irrigation bien dosée.
+d0e1f2g3-0000-1111-2222-333333333333,dec030,IRRIGUER,2021-07-20T12:00:00,2021-07-20T12:30:00,Dr. Imane Alaoui,4,Sol à 18.2% avec évapotranspiration élevée. Bonne décision d'irriguer.
+e1f2g3h4-1111-2222-3333-444444444444,dec031,NE PAS IRRIGUER,2021-08-25T13:00:00,2021-08-25T13:10:00,Ing. Reda Tazi,5,Parfait : sol à 65.5% après pluies. Bonne décision de ne pas irriguer.
+f2g3h4i5-2222-3333-4444-555555555555,dec032,NE PAS IRRIGUER,2021-09-15T14:00:00,2021-09-15T14:08:00,Dr. Hicham Benali,4,Bonne décision : sol à 72.8% d'humidité. Pas d'irrigation nécessaire.
+g3h4i5j6-3333-4444-5555-666666666666,dec033,IRRIGUER,2022-05-10T09:00:00,2022-05-10T09:25:00,Ing. Souad Amrani,4,Sol à 24.2% en période de croissance. Irrigation modérée appropriée.
+h4i5j6k7-4444-5555-6666-777777777777,dec034,IRRIGUER,2022-06-20T10:00:00,2022-06-20T10:30:00,Dr. Tarik Cherkaoui,5,Urgence bien détectée : sol à 19.5% avec température élevée. Irrigation nécessaire.
+i5j6k7l8-5555-6666-7777-888888888888,dec035,IRRIGUER,2022-07-25T11:00:00,2022-07-25T11:20:00,Ing. Lamia Idrissi,4,Sol très sec à 16.8%. Bonne réaction avec irrigation de 45 minutes.
+j6k7l8m9-6666-7777-8888-999999999999,dec036,NE PAS IRRIGUER,2022-08-15T12:00:00,2022-08-15T12:10:00,Dr. Yassine Bensaid,5,Excellent jugement : sol à 68.2% après pluies. Pas besoin d'irrigation.
+k7l8m9n0-7777-8888-9999-000000000000,dec037,IRRIGUER,2023-05-15T08:30:00,2023-05-15T08:55:00,Ing. Zineb El Fassi,4,Sol à 22.8% avec conditions favorables. Irrigation modérée bien gérée.
+l8m9n0o1-8888-9999-0000-111111111111,dec038,IRRIGUER,2023-06-25T09:15:00,2023-06-25T09:40:00,Dr. Anass Khadiri,5,Excellent : sol sec à 18.2% en période chaude. Irrigation bien dosée.
+m9n0o1p2-9999-0000-1111-222222222222,dec039,IRRIGUER,2023-07-30T10:00:00,2023-07-30T10:25:00,Ing. Hiba Alaoui,4,Sol critique à 15.5% avec évapotranspiration maximale. Irrigation urgente justifiée.
+n0o1p2q3-0000-1111-2222-333333333333,dec040,NE PAS IRRIGUER,2023-08-20T11:00:00,2023-08-20T11:10:00,Dr. Ayoub Tazi,5,Parfait : sol à 70.5% après pluies. Bonne décision de ne pas irriguer.
+o1p2q3r4-1111-2222-3333-444444444444,dec041,IRRIGUER,2021-04-20T09:00:00,2021-04-20T09:20:00,Ing. Ines Benali,4,Sol à 28.5% en début de saison. Irrigation modérée appropriée.
+p2q3r4s5-2222-3333-4444-555555555555,dec042,IRRIGUER,2021-05-25T10:00:00,2021-05-25T10:30:00,Dr. Othmane Amrani,5,Urgence bien identifiée : sol à 24.2% avec température montante. Irrigation nécessaire.
+q3r4s5t6-3333-4444-5555-666666666666,dec043,IRRIGUER,2021-06-30T11:00:00,2021-06-30T11:25:00,Ing. Salma Cherkaoui,4,Sol sec à 20.8% en période chaude. Bonne décision d'irriguer 40 minutes.
+r4s5t6u7-4444-5555-6666-777777777777,dec044,IRRIGUER,2021-07-15T12:00:00,2021-07-15T12:30:00,Dr. Mehdi Idrissi,5,Excellent : sol très sec à 18.5% avec évapotranspiration élevée. Irrigation bien gérée.
+s5t6u7v8-5555-6666-7777-888888888888,dec045,IRRIGUER,2021-08-05T13:00:00,2021-08-05T13:20:00,Ing. Nadia Bensaid,4,Sol critique à 16.2% en période de forte chaleur. Irrigation urgente bien exécutée.
+t6u7v8w9-6666-7777-8888-999999999999,dec046,NE PAS IRRIGUER,2021-08-30T14:00:00,2021-08-30T14:10:00,Dr. Youssef El Fassi,5,Parfait jugement : sol à 68.8% après pluies. Pas d'irrigation nécessaire.
+u7v8w9x0-7777-8888-9999-000000000000,dec047,NE PAS IRRIGUER,2021-09-25T15:00:00,2021-09-25T15:08:00,Ing. Imane Khadiri,4,Bonne décision : sol à 75.5% d'humidité. Éviter la sur-irrigation.
+v8w9x0y1-8888-9999-0000-111111111111,dec048,IRRIGUER,2022-04-25T08:00:00,2022-04-25T08:25:00,Dr. Reda Alaoui,4,Sol à 26.8% en début de saison. Irrigation modérée appropriée.
+w9x0y1z2-9999-0000-1111-222222222222,dec049,IRRIGUER,2022-06-05T09:00:00,2022-06-05T09:30:00,Ing. Hicham Tazi,5,Urgence bien détectée : sol sec à 22.5% avec température élevée. Irrigation nécessaire.
+x0y1z2a3-0000-1111-2222-333333333333,dec050,IRRIGUER,2022-07-20T10:00:00,2022-07-20T10:25:00,Dr. Souad Benali,4,Sol très sec à 19.2% avec évapotranspiration maximale. Bonne réaction avec irrigation.
+y1z2a3b4-1111-2222-3333-444444444444,dec051,NE PAS IRRIGUER,2022-08-30T11:00:00,2022-08-30T11:10:00,Ing. Tarik Amrani,5,Excellent jugement : sol à 72.2% après pluies. Pas besoin d'irrigation.
+z2a3b4c5-2222-3333-4444-555555555555,dec052,IRRIGUER,2023-05-05T08:15:00,2023-05-05T08:40:00,Dr. Lamia Cherkaoui,4,Sol à 25.5% avec conditions favorables. Irrigation modérée bien gérée.
+a3b4c5d6-3333-4444-5555-666666666666,dec053,IRRIGUER,2023-06-15T09:00:00,2023-06-15T09:30:00,Ing. Yassine Idrissi,5,Excellent : sol sec à 21.2% en période chaude. Irrigation bien dosée.
+b4c5d6e7-4444-5555-6666-777777777777,dec054,IRRIGUER,2023-07-25T10:00:00,2023-07-25T10:20:00,Dr. Zineb Bensaid,4,Sol critique à 17.8% avec évapotranspiration élevée. Irrigation urgente justifiée.
+c5d6e7f8-5555-6666-7777-888888888888,dec055,NE PAS IRRIGUER,2023-09-05T11:00:00,2023-09-05T11:10:00,Ing. Anass El Fassi,5,Parfait : sol à 74.5% après pluies. Bonne décision de ne pas irriguer.
+870bf93d-523e-439a-af9e-cf71fe2d5c6c,924a6f33-1cbf-4df9-8810-7f0ce591c7ba,NE PAS IRRIGUER,2025-12-03T10:19:59,2025-12-03T10:20:42,Expert,5,"le sol est saturé, bonne analyse"
+2e8874ff-3d0d-437f-ad2e-e7cc22bce633,c8cdf06d-9383-41ab-b7d8-3bc790bf0536,IRRIGUER (09/12/2025 00:37:53),2025-12-09T00:37:53.395258,2025-12-09T00:41:30.333196,ilyass,1,"""decision"": ""NE PAS IRRIGUER"", malgré ca pompe activé"
+228529a8-2ff0-49ba-b60a-68e4bee8eb07,13f4f9f8-99d2-4002-a918-0f2837d3c147,NE PAS IRRIGUER (09/12/2025 01:11:09),2025-12-09T01:11:09.067993,2025-12-09T01:12:06.157730,ilyass machmoum,5,"Le sol est déjà saturé, bonne analyse"

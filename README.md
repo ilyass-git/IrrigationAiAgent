@@ -1,280 +1,481 @@
-# 🌾 Système d'Irrigation Intelligent - Agent IA
+# 🌾 Système d'Irrigation Intelligent avec IA
 
-Un système d'automatisation de l'irrigation basé sur un agent IA intelligent utilisant LangChain et un LLM pour la prise de décision autonome.
+Système d'irrigation automatisé utilisant l'intelligence artificielle pour prendre des décisions d'irrigation basées sur les données de capteurs IoT, les conditions météorologiques et les retours d'experts.
 
-## 📋 Description
+## 📋 Table des Matières
 
-Ce projet combine l'analyse de données historiques d'irrigation et les données météorologiques en temps réel pour prendre automatiquement des décisions d'irrigation intelligentes. Le système utilise un agent LangChain avec un LLM (GPT) pour analyser les patterns historiques et les conditions actuelles, puis génère une décision justifiée.
+- [Architecture](#architecture)
+- [Fonctionnement](#fonctionnement)
+- [Composants](#composants)
+- [Flux de Données](#flux-de-données)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Utilisation](#utilisation)
+
+---
 
 ## 🏗️ Architecture
 
-### Structure du Projet
+Le système est organisé en plusieurs couches modulaires :
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  Interface Web (Flask)                  │
+│              web/app.py + templates/index.html           │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+                        ↓
+┌─────────────────────────────────────────────────────────┐
+│              Moteur de Décision (Orchestrateur)          │
+│              app/decision_engine.py                      │
+└───────┬───────────┬───────────┬───────────┬─────────────┘
+        │           │           │           │
+        ↓           ↓           ↓           ↓
+┌───────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
+│ Capteurs  │ │ Météo    │ │ Reviews  │ │ Agent IA│
+│ IoT       │ │ API      │ │ Experts │ │ LLM     │
+└───────────┘ └──────────┘ └──────────┘ └──────────┘
+```
+
+### Structure des Répertoires
 
 ```
 IrrigationAiAgent/
-├── app/                    # Modules principaux de l'application
-│   ├── __init__.py
-│   ├── data_loader.py      # Chargement et analyse des données CSV
-│   ├── weather_api.py      # Récupération des données météo
-│   ├── agent.py            # Agent LangChain pour la décision
-│   └── decision_engine.py   # Moteur de décision principal
+├── app/                    # Modules métier
+│   ├── agent.py           # Agent IA (LangChain + LLM)
+│   ├── decision_engine.py # Orchestrateur principal
+│   ├── sensor_data_loader.py # Gestion des capteurs IoT
+│   ├── review_manager.py   # Gestion des avis d'experts
+│   └── weather_api.py     # API météorologique
 ├── web/                    # Interface web
-│   ├── __init__.py
-│   ├── app.py              # Application Flask
+│   ├── app.py             # Application Flask
 │   └── templates/
-│       └── index.html      # Interface utilisateur
+│       └── index.html     # Interface utilisateur
 ├── config/                 # Configuration
-│   ├── __init__.py
-│   └── settings.py         # Paramètres système
-├── data/                   # Données historiques
-│   └── historical_data.csv # Fichier CSV avec données historiques
-├── main.py                 # Point d'entrée
-├── requirements.txt        # Dépendances Python
-└── README.md              # Documentation
+│   └── settings.py        # Paramètres système
+├── data/                   # Données persistantes
+│   ├── sensor_data.csv    # Données des capteurs
+│   └── reviews.csv        # Avis des experts
+├── main.py                # Point d'entrée
+└── requirements.txt       # Dépendances Python
 ```
 
-### Composants Principaux
+---
 
-#### 1. **Data Loader** (`app/data_loader.py`)
-- Charge les données historiques depuis un fichier CSV
-- Calcule des statistiques descriptives
-- Identifie les patterns d'irrigation passés
-- Trouve des cas similaires dans l'historique
+## ⚙️ Fonctionnement
 
-#### 2. **Weather API** (`app/weather_api.py`)
-- Récupère les données météorologiques en temps réel via une API externe (OpenWeatherMap)
-- Formate les données pour l'analyse
-- Gère les erreurs avec des valeurs par défaut
+### Processus de Décision
 
-#### 3. **Agent IA** (`app/agent.py`)
-- Utilise LangChain avec OpenAI GPT pour la prise de décision
-- Analyse les données historiques et météo
-- Génère une décision (IRRIGUER / NE PAS IRRIGUER) avec justification
+Le système prend des décisions d'irrigation en suivant ces étapes :
 
-#### 4. **Decision Engine** (`app/decision_engine.py`)
-- Orchestre l'ensemble du processus de décision
-- Combine les données historiques, météo et l'agent IA
-- Retourne une décision complète avec métadonnées
+1. **Collecte des Données**
+   - Récupération des données de capteurs IoT (humidité sol, température, réservoir, etc.)
+   - Récupération des conditions météorologiques actuelles (OpenWeatherMap)
+   - Analyse des retours d'experts (notes et commentaires)
 
-#### 5. **Interface Web** (`web/app.py` + `web/templates/index.html`)
-- Interface Flask avec une UI moderne
-- Affichage de la décision avec un switch visuel
-- Bouton pour déclencher manuellement une décision
-- Système de planification automatique (scheduler)
+2. **Analyse par l'IA**
+   - L'agent IA (LLM) analyse toutes les données collectées
+   - Application des critères de décision définis dans le prompt système
+   - Génération d'une décision : `IRRIGUER` ou `NE PAS IRRIGUER`
+   - Calcul de la durée d'irrigation (10-60 minutes) si irrigation nécessaire
+
+3. **Exécution**
+   - Si `IRRIGUER` : démarrage de la pompe pour la durée calculée
+   - Si `NE PAS IRRIGUER` : pompe maintenue à l'arrêt
+   - Arrêt automatique de la pompe après la durée programmée
+
+4. **Mise à Jour**
+   - Génération d'une nouvelle lecture de capteurs (simulation)
+   - Enregistrement de la décision avec timestamp
+   - Mise à jour de l'interface web
+
+### Critères de Décision
+
+L'IA prend ses décisions en se basant sur :
+
+1. **Humidité du Sol** (priorité absolue)
+   - < 25% : ALERTE CRITIQUE → Irrigation immédiate
+   - 25-30% : Sol sec → Irrigation
+   - 30-40% : Sol légèrement sec → Irrigation si conditions favorables
+   - 40-60% : Sol optimal → Pas d'irrigation sauf évapotranspiration élevée
+   - 60-70% : Sol bien hydraté → Pas d'irrigation
+   - > 70% : Sol saturé → Pas d'irrigation (risque de pourriture)
+
+2. **Niveau du Réservoir**
+   - < 20% : Irrigation impossible
+   - 20-30% : Irrigation seulement si sol très sec (< 25%)
+   - > 30% : Réservoir suffisant
+
+3. **Évapotranspiration**
+   - Élevée (> 8 mm/jour) + sol sec → Irrigation
+   - Faible (< 3 mm/jour) → Besoins réduits
+
+4. **Conditions Météorologiques**
+   - Pas d'irrigation si pluviométrie > 5mm
+   - Pas d'irrigation si humidité air > 80%
+   - Température élevée → Besoins en eau augmentés
+
+5. **Retours d'Experts (Reviews)**
+   - Analyse des notes moyennes (1-5 étoiles)
+   - Si note moyenne < 3⭐ : être plus prudent
+   - Si note moyenne ≥ 4⭐ : continuer l'approche actuelle
+   - Éviter de reproduire les erreurs signalées par les experts
+
+---
+
+## 🔧 Composants
+
+### 1. DecisionEngine (`app/decision_engine.py`)
+
+**Rôle** : Orchestrateur principal qui coordonne tous les composants
+
+**Responsabilités** :
+- Collecte des données (capteurs, météo, reviews)
+- Appel à l'agent IA pour la décision
+- Génération de nouvelles lectures de capteurs
+- Construction de la réponse complète avec métadonnées
+
+**Méthodes principales** :
+- `make_irrigation_decision()` : Prend une décision complète
+- `get_system_status()` : Retourne l'état du système
+- `add_review()` : Ajoute un avis d'expert
+- `get_recent_reviews()` : Récupère les avis récents
+
+### 2. IrrigationAgent (`app/agent.py`)
+
+**Rôle** : Agent IA utilisant LangChain et un LLM pour la prise de décision
+
+**Technologies** :
+- LangChain pour l'orchestration
+- OpenAI GPT-4o-mini ou Ollama (configurable)
+- Prompts structurés avec règles de décision
+
+**Processus** :
+1. Construction du prompt système avec critères de décision
+2. Assemblage des données (météo + capteurs + reviews)
+3. Appel au LLM avec le prompt
+4. Parsing de la réponse JSON
+5. Validation et retour de la décision avec durée
+
+**Format de réponse** :
+```json
+{
+    "decision": "IRRIGUER" | "NE PAS IRRIGUER",
+    "explication": "Explication détaillée en français",
+    "duree_minutes": 30
+}
+```
+
+### 3. SensorDataLoader (`app/sensor_data_loader.py`)
+
+**Rôle** : Gestion des données de capteurs IoT
+
+**Fonctionnalités** :
+- Chargement des données depuis `sensor_data.csv`
+- Génération de nouvelles lectures simulées
+- Calcul d'alertes basées sur les seuils
+- Résumé formaté pour le LLM
+
+**Données gérées** :
+- Humidité du sol (%)
+- Température du sol (°C)
+- Niveau du réservoir (%)
+- Évapotranspiration (mm/jour)
+- Profondeur des racines (cm)
+- pH du sol
+- Conductivité électrique (dS/m)
+
+**Simulation** : Génère de nouvelles lectures basées sur :
+- Conditions météorologiques actuelles
+- Décision d'irrigation prise
+- Durée d'irrigation
+- Données précédentes
+
+### 4. ReviewManager (`app/review_manager.py`)
+
+**Rôle** : Gestion des avis d'experts
+
+**Fonctionnalités** :
+- Stockage des reviews dans `reviews.csv`
+- Calcul de statistiques (note moyenne, nombre de reviews)
+- Génération de résumés pour le LLM
+- Analyse des tendances (reviews négatives/positives)
+
+**Structure d'un review** :
+- `review_id` : Identifiant unique
+- `decision_id` : ID de la décision évaluée
+- `decision` : Type de décision (IRRIGUER / NE PAS IRRIGUER)
+- `stars` : Note de 1 à 5
+- `comment` : Commentaire de l'expert
+- `expert_name` : Nom de l'expert
+- `review_timestamp` : Date/heure du review
+
+**Résumé pour LLM** :
+- Note moyenne des reviews récentes
+- Nombre de reviews négatives (<3⭐) et positives (≥4⭐)
+- Règles d'apprentissage basées sur les notes
+- Alertes si trop de reviews négatives
+
+### 5. WeatherAPI (`app/weather_api.py`)
+
+**Rôle** : Récupération des données météorologiques
+
+**Source** : OpenWeatherMap API
+
+**Données récupérées** :
+- Température actuelle (°C)
+- Humidité de l'air (%)
+- Pluviométrie (mm)
+- Description des conditions
+- Vitesse du vent (m/s)
+- Couverture nuageuse (%)
+
+**Gestion d'erreurs** : Retourne des valeurs par défaut si l'API échoue
+
+### 6. Flask App (`web/app.py`)
+
+**Rôle** : Interface web et API REST
+
+**Fonctionnalités** :
+- Interface web interactive (`/`)
+- API REST pour les décisions (`/api/decision/*`)
+- API pour les reviews (`/api/reviews/*`)
+- Contrôle de la pompe (`/api/pump/*`)
+- Planification automatique (APScheduler)
+
+**Endpoints principaux** :
+- `GET /` : Interface web
+- `POST /api/decision/make` : Prendre une décision manuelle
+- `GET /api/decision/last` : Dernière décision
+- `GET /api/status` : État du système
+- `POST /api/reviews` : Ajouter un review
+- `GET /api/reviews/recent` : Reviews récents
+- `POST /api/pump/stop` : Arrêter la pompe manuellement
+- `POST /api/scheduler/start` : Démarrer la planification automatique
+- `POST /api/scheduler/stop` : Arrêter la planification
+
+**Planification automatique** :
+- Décisions automatiques à intervalles réguliers (par défaut : 6 heures)
+- Arrêt automatique de la pompe après la durée programmée
+- Utilisation d'APScheduler pour les tâches en arrière-plan
+
+---
+
+## 📊 Flux de Données
+
+### Flux de Décision
+
+```
+┌──────────────┐
+│ Interface Web│
+│  (Utilisateur)│
+└──────┬───────┘
+       │
+       ↓
+┌─────────────────┐
+│   Flask App     │
+│  web/app.py     │
+└──────┬──────────┘
+       │
+       ↓
+┌──────────────────────┐
+│  DecisionEngine      │
+│  (Orchestration)     │
+└──────┬───────────────┘
+       │
+       ├──────────┬──────────┬──────────┐
+       ↓          ↓          ↓          ↓
+┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
+│Capteurs  │ │ Météo    │ │ Reviews  │ │ Agent IA │
+│IoT       │ │ API      │ │ Experts  │ │ (LLM)    │
+└──────────┘ └──────────┘ └──────────┘ └────┬─────┘
+       │          │          │                │
+       └──────────┴──────────┴───────────────┘
+                       │
+                       ↓
+              ┌─────────────────┐
+              │   Décision      │
+              │  + Durée        │
+              └────────┬────────┘
+                       │
+                       ↓
+              ┌─────────────────┐
+              │  Contrôle Pompe  │
+              │  (Simulation)    │
+              └─────────────────┘
+```
+
+### Cycle de Vie d'une Décision
+
+1. **Déclenchement** : Manuel (bouton) ou automatique (scheduler)
+2. **Collecte** : Capteurs + Météo + Reviews
+3. **Analyse** : Agent IA analyse et décide
+4. **Exécution** : Démarrage/arrêt de la pompe
+5. **Enregistrement** : Nouvelle lecture de capteurs générée
+6. **Feedback** : Expert peut évaluer la décision
+
+---
 
 ## 🚀 Installation
 
 ### Prérequis
 
-- Python 3.8 ou supérieur
-- Clé API OpenAI
-- Clé API OpenWeatherMap (optionnelle, des valeurs par défaut sont utilisées en cas d'erreur)
+- Python 3.8+
+- Clé API OpenWeatherMap (optionnelle, valeurs par défaut si absente)
+- Clé API OpenAI OU Ollama installé localement
 
-### Étapes d'Installation
+### Étapes
 
-1. **Cloner ou télécharger le projet**
+1. **Cloner le projet** (ou télécharger)
+   ```bash
+   cd IrrigationAiAgent
+   ```
 
 2. **Installer les dépendances**
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 3. **Configurer les variables d'environnement**
+   - Créer un fichier `.env` à la racine
+   - Copier le contenu de `env.example.txt` et remplir les valeurs
 
-Créez un fichier `.env` à la racine du projet avec le contenu suivant :
-
-```env
-# Configuration OpenAI / LLM
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Configuration API Météo (OpenWeatherMap)
-WEATHER_API_KEY=your_weather_api_key_here
-WEATHER_API_URL=https://api.openweathermap.org/data/2.5/weather
-
-# Configuration Localisation
-LATITUDE=45.5017
-LONGITUDE=-73.5673
-CITY_NAME=Montreal
-
-# Configuration LangChain
-LLM_MODEL=gpt-4o-mini
-TEMPERATURE=0.3
-
-# Configuration Système
-AUTO_DECISION_INTERVAL_HOURS=6
-CSV_DATA_PATH=data/historical_data.csv
-```
-
-**Note:** Pour obtenir une clé API OpenWeatherMap, inscrivez-vous sur [OpenWeatherMap](https://openweathermap.org/api)
-
-4. **Vérifier le fichier CSV**
-
-Assurez-vous que le fichier `data/historical_data.csv` existe et contient les colonnes suivantes :
-- `date` : Date de l'enregistrement
-- `temperature` : Température en degrés Celsius
-- `humidite_air` : Humidité de l'air en pourcentage
-- `pluviometrie` : Pluviométrie en millimètres
-- `irrigation` : 1 si irrigation effectuée, 0 sinon
-- `type_culture` : Type de culture (optionnel)
-
-## 🎯 Utilisation
-
-### Démarrage de l'Application
-
-```bash
-python main.py
-```
-
-L'interface web sera accessible sur : `http://localhost:5000`
-
-### Fonctionnalités
-
-#### 1. **Décision Manuelle**
-- Cliquez sur le bouton "🔄 Lancer la Décision"
-- Le système analyse les données et prend une décision
-- La décision s'affiche avec une explication
-
-#### 2. **Décision Automatique**
-- Configurez l'intervalle (en heures) dans la section "Planification Automatique"
-- Cliquez sur "Démarrer Auto"
-- Le système prendra automatiquement des décisions à l'intervalle configuré
-
-#### 3. **Interface Visuelle**
-- **Switch ON/OFF** : Représente l'état de la pompe d'irrigation
-- **Décision** : Affiche clairement "IRRIGUER" ou "NE PAS IRRIGUER"
-- **Explication** : Justification de la décision en langage clair
-- **Informations météo** : Température, humidité, pluviométrie actuelles
-
-## 🔄 Flux de Décision
-
-```
-1. Chargement des données historiques (CSV)
-   ↓
-2. Analyse statistique des patterns passés
-   ↓
-3. Récupération des données météo en temps réel
-   ↓
-4. Identification de cas similaires dans l'historique
-   ↓
-5. Envoi des données à l'agent IA (LangChain + LLM)
-   ↓
-6. Analyse et prise de décision par l'agent
-   ↓
-7. Retour de la décision avec justification
-   ↓
-8. Affichage dans l'interface web
-```
-
-## 🧠 Logique de Décision de l'Agent IA
-
-L'agent IA prend en compte :
-
-1. **Patterns historiques** : Dans quelles conditions a-t-on irrigué dans le passé ?
-2. **Conditions météorologiques actuelles** : Température, humidité, pluviométrie
-3. **Probabilité de pluie** : Évite l'irrigation si la pluie est prévue
-4. **Humidité de l'air** : Évite l'irrigation si l'humidité est très élevée (>80%)
-5. **Cas similaires** : Compare avec des situations historiques similaires
-
-## 📊 Format des Données CSV
-
-Le fichier CSV doit contenir les colonnes suivantes :
-
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `date` | Date | Date de l'enregistrement (format: YYYY-MM-DD) |
-| `temperature` | Float | Température en degrés Celsius |
-| `humidite_air` | Float | Humidité de l'air en pourcentage (0-100) |
-| `pluviometrie` | Float | Pluviométrie en millimètres |
-| `irrigation` | Integer | 1 si irrigation effectuée, 0 sinon |
-| `type_culture` | String | Type de culture (optionnel) |
-
-## 🔧 Configuration Avancée
-
-### Modifier le Modèle LLM
-
-Dans le fichier `.env`, modifiez :
-```env
-LLM_MODEL=gpt-4o-mini  # ou gpt-4, gpt-3.5-turbo, etc.
-TEMPERATURE=0.3        # 0.0 (déterministe) à 1.0 (créatif)
-```
-
-### Modifier la Localisation
-
-Dans le fichier `.env`, modifiez :
-```env
-LATITUDE=45.5017
-LONGITUDE=-73.5673
-CITY_NAME=Montreal
-```
-
-### Modifier l'Intervalle Automatique
-
-Dans le fichier `.env`, modifiez :
-```env
-AUTO_DECISION_INTERVAL_HOURS=6  # Intervalle en heures
-```
-
-## 🐛 Dépannage
-
-### Erreur lors de l'installation : pandas ne peut pas être compilé (Python 3.13)
-
-**Problème** : Si vous utilisez Python 3.13, pandas 2.1.4 n'est pas compatible. Les versions récentes de pandas (>=2.2.0) sont nécessaires.
-
-**Solution** :
-1. Le fichier `requirements.txt` a été mis à jour avec des versions compatibles
-2. Réessayez l'installation : `pip install -r requirements.txt`
-3. Si le problème persiste, installez les packages individuellement :
+4. **Lancer l'application**
    ```bash
-   pip install pandas>=2.2.0
-   pip install langchain langchain-openai langchain-community
-   pip install openai flask python-dotenv requests apscheduler
+   python main.py
    ```
-4. **Alternative** : Utilisez Python 3.11 ou 3.12 qui sont plus stables avec toutes les bibliothèques
 
-### Erreur : "OPENAI_API_KEY doit être défini"
-- Vérifiez que le fichier `.env` existe et contient votre clé API OpenAI
-- Le fichier doit être à la racine du projet
-
-### Erreur : "Le fichier CSV n'existe pas"
-- Vérifiez que le fichier `data/historical_data.csv` existe
-- Vérifiez le chemin dans la configuration `CSV_DATA_PATH`
-
-### Les données météo ne se chargent pas
-- Vérifiez votre clé API OpenWeatherMap
-- Le système utilisera des valeurs par défaut en cas d'erreur
-
-### Erreur : "ModuleNotFoundError: No module named 'langchain'"
-- Assurez-vous d'avoir installé toutes les dépendances : `pip install -r requirements.txt`
-- Vérifiez que vous utilisez le bon environnement Python
-
-### Problèmes de compatibilité avec les versions récentes de LangChain
-- Le code a été mis à jour pour être compatible avec LangChain >= 0.3.0
-- Si vous rencontrez des erreurs d'import, mettez à jour LangChain : `pip install --upgrade langchain langchain-openai langchain-community`
-
-## 📝 Notes Importantes
-
-- Ce système est conçu pour un **projet académique** et simule une prise de décision
-- Il ne contrôle **pas une pompe réelle**, mais simule le processus de décision
-- Les décisions sont basées sur des données historiques et des conditions météo actuelles
-- L'agent IA utilise un LLM pour générer des décisions justifiées
-
-## 🎓 Utilisation Académique
-
-Ce projet peut être utilisé comme base pour :
-- Études sur l'IA appliquée à l'agriculture
-- Automatisation des processus agricoles
-- Analyse de données historiques avec IA
-- Prise de décision autonome basée sur des données
-
-## 📄 Licence
-
-Ce projet est fourni à des fins éducatives et académiques.
-
-## 👨‍💻 Auteur
-
-Système d'irrigation intelligent développé pour un projet académique sur l'automatisation des processus agricoles par intelligence artificielle.
+5. **Accéder à l'interface**
+   - Ouvrir un navigateur : `http://localhost:5000`
 
 ---
 
-**🌾 Bonne irrigation intelligente ! 🌾**
+## ⚙️ Configuration
+
+### Variables d'Environnement (`.env`)
+
+```env
+# LLM Provider (openai ou ollama)
+LLM_PROVIDER=openai
+OPENAI_API_KEY=votre_cle_openai
+LLM_MODEL=gpt-4o-mini
+TEMPERATURE=0.3
+
+# Pour Ollama
+OLLAMA_BASE_URL=http://localhost:11434
+
+# API Météo
+WEATHER_API_KEY=votre_cle_openweathermap
+LATITUDE=45.5017
+LONGITUDE=-73.5673
+CITY_NAME=Montreal
+
+# Planification automatique
+AUTO_DECISION_INTERVAL_HOURS=6
+```
+
+### Fichiers de Données
+
+- `data/sensor_data.csv` : Données des capteurs IoT
+- `data/reviews.csv` : Avis des experts
+
+Ces fichiers sont créés automatiquement s'ils n'existent pas.
+
+---
+
+## 💻 Utilisation
+
+### Interface Web
+
+1. **Prendre une Décision Manuelle**
+   - Cliquer sur le bouton "Prendre une Décision"
+   - Attendre l'analyse (quelques secondes)
+   - Consulter la décision et l'explication
+
+2. **Planification Automatique**
+   - Activer la planification automatique
+   - Le système prendra des décisions à intervalles réguliers
+   - Désactiver à tout moment
+
+3. **Évaluer une Décision**
+   - Après chaque décision, un formulaire apparaît
+   - Donner une note (1-5 étoiles)
+   - Ajouter un commentaire
+   - Valider l'avis
+
+4. **Contrôle de la Pompe**
+   - La pompe démarre automatiquement si irrigation décidée
+   - Arrêt automatique après la durée programmée
+   - Possibilité d'arrêt manuel
+
+### API REST
+
+Exemples avec `curl` :
+
+```bash
+# Prendre une décision
+curl -X POST http://localhost:5000/api/decision/make
+
+# Obtenir la dernière décision
+curl http://localhost:5000/api/decision/last
+
+# Obtenir l'état du système
+curl http://localhost:5000/api/status
+
+# Ajouter un review
+curl -X POST http://localhost:5000/api/reviews \
+  -H "Content-Type: application/json" \
+  -d '{
+    "decision_id": "uuid-de-la-decision",
+    "decision": "IRRIGUER",
+    "decision_timestamp": "2025-12-04T10:00:00",
+    "expert_name": "Expert",
+    "stars": 5,
+    "comment": "Excellente décision"
+  }'
+
+# Arrêter la pompe
+curl -X POST http://localhost:5000/api/pump/stop
+```
+
+---
+
+## 🔄 Amélioration Continue
+
+Le système apprend des retours d'experts :
+
+- **Notes élevées (≥4⭐)** : L'IA continue avec la même approche
+- **Notes faibles (<3⭐)** : L'IA ajuste sa stratégie pour éviter les erreurs
+- **Tendance négative** : Alertes et changements de comportement
+
+Les reviews influencent directement les prochaines décisions en étant intégrés dans le prompt système de l'agent IA.
+
+---
+
+## 📝 Notes Techniques
+
+- **Simulation de pompe** : La pompe est simulée (pas de matériel réel)
+- **Génération de capteurs** : Les nouvelles lectures sont simulées basées sur les conditions
+- **Persistance** : Toutes les données sont stockées dans des fichiers CSV
+- **Temps réel** : L'interface se met à jour automatiquement toutes les 30 secondes
+
+---
+
+## 🛠️ Technologies Utilisées
+
+- **Python 3.8+**
+- **Flask** : Framework web
+- **LangChain** : Orchestration LLM
+- **OpenAI / Ollama** : Modèles de langage
+- **Pandas** : Manipulation de données
+- **APScheduler** : Planification de tâches
+- **OpenWeatherMap API** : Données météorologiques
+
+---
+
+## 📄 Licence
+
+Ce projet est un système de démonstration pour l'irrigation intelligente avec IA.
+
+
 

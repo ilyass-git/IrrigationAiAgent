@@ -24,6 +24,7 @@ CITY_NAME = os.getenv("CITY_NAME", "Montreal")
 AUTO_DECISION_INTERVAL_HOURS = int(os.getenv("AUTO_DECISION_INTERVAL_HOURS", "6"))
 CSV_DATA_PATH = os.getenv("CSV_DATA_PATH", "data/historical_data.csv")
 SENSOR_CSV_DATA_PATH = os.getenv("SENSOR_CSV_DATA_PATH", "data/sensor_data.csv")
+REVIEWS_CSV_DATA_PATH = os.getenv("REVIEWS_CSV_DATA_PATH", "data/reviews.csv")
 
 # Validation
 if LLM_PROVIDER == 'openai' and not OPENAI_API_KEY:
