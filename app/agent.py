@@ -55,11 +55,12 @@ class IrrigationAgent:
                     print(f"   Erreur : {e}")
                     print(f"   Assurez-vous qu'Ollama est demarre : 'ollama serve'")
                 
+                # Configuration Ollama sans timeout strict (priorité à la qualité de réponse)
                 self.llm = ChatOllama(
                     model=LLM_MODEL,
                     temperature=TEMPERATURE,
-                    base_url=OLLAMA_BASE_URL,
-                    timeout=30.0  # Timeout de 30 secondes pour Ollama
+                    base_url=OLLAMA_BASE_URL
+                    # Pas de timeout : on laisse Ollama prendre le temps nécessaire pour une réponse correcte
                 )
             except Exception as e:
                 print(f"[ERROR] Erreur lors de l'initialisation d'Ollama : {e}")
@@ -71,11 +72,11 @@ class IrrigationAgent:
             
             self.llm = ChatOpenAI(
                 model=LLM_MODEL,
-                temperature=TEMPERATURE,
-                timeout=30.0  # Timeout de 30 secondes pour OpenAI
+                temperature=TEMPERATURE
+                # Pas de timeout strict : priorité à la qualité de réponse
             )
         
-        # Template de prompt système pour guider l'agent
+        # Template de prompt système complet (priorité à la qualité de réponse)
         self.system_prompt = """Tu es un expert en agriculture intelligente et en gestion de l'irrigation.
 
 Ta mission est d'analyser les conditions météorologiques actuelles, les données de capteurs IoT et les retours d'experts pour prendre une décision éclairée : IRRIGUER ou NE PAS IRRIGUER.
@@ -103,7 +104,7 @@ CRITÈRES DE DÉCISION (par ordre de priorité) :
    - Ne pas irriguer si humidité de l'air > 80%
    - Température élevée → Besoins en eau augmentent
 
-4. **Retours d'experts (REVUES)** :
+5. **Retours d'experts (REVUES)** :
    - Étudier les critiques passées : si plusieurs revues récentes sont négatives (<3⭐), éviter de reproduire les mêmes conditions
    - Donner davantage de poids aux retours positifs (>4⭐) lorsque les conditions sont similaires
    - Si la note moyenne des revues récentes est < 3⭐, être plus prudent dans la décision
@@ -123,29 +124,33 @@ GUIDE RAPIDE POUR LA DURÉE :
 - > 45 % ou pluie prévue → 0 à 15 min maximum
 Réduis la durée si le niveau du réservoir est bas ou si les experts ont récemment critiqué des durées trop longues.
 
-FORMAT DE RÉPONSE :
-Tu dois répondre UNIQUEMENT avec un JSON valide, SANS texte avant ou après, SANS markdown, SANS doubles accolades.
-Format exact à utiliser (copier-coller et remplacer les valeurs) :
+FORMAT DE RÉPONSE OBLIGATOIRE :
+Tu DOIS répondre UNIQUEMENT avec un JSON valide contenant EXACTEMENT ces 3 champs :
+1. "decision" : soit "IRRIGUER" soit "NE PAS IRRIGUER"
+2. "duree_minutes" : un nombre entier (0 si NE PAS IRRIGUER, entre 10 et 60 si IRRIGUER)
+3. "explication" : une explication en français
 
-{
-    "decision": "IRRIGUER",
-    "duree_minutes": 30,
-    "explication": "Explication en français"
-}
+Exemple de réponse CORRECTE :
+{{
+    "decision": "NE PAS IRRIGUER",
+    "duree_minutes": 0,
+    "explication": "L'humidité du sol est optimale à 50%, pas besoin d'irrigation."
+}}
 
 OU
 
-{
-    "decision": "NE PAS IRRIGUER",
-    "duree_minutes": 0,
-    "explication": "Explication en français"
-}
+{{
+    "decision": "IRRIGUER",
+    "duree_minutes": 30,
+    "explication": "Le sol est sec à 25%, irrigation nécessaire pendant 30 minutes."
+}}
 
-IMPORTANT : 
-- Réponds UNIQUEMENT le JSON, rien d'autre
-- Utilise des accolades simples { et }, PAS de doubles {{ ou }}
-- Pas de texte avant ou après le JSON
-- Pas de markdown ```json
+RÈGLES STRICTES :
+- Réponds UNIQUEMENT le JSON, SANS texte avant ou après
+- PAS de markdown (pas de ```json)
+- Les 3 champs sont OBLIGATOIRES : decision, duree_minutes, explication
+- Si decision = "NE PAS IRRIGUER", alors duree_minutes DOIT être 0
+- Si decision = "IRRIGUER", alors duree_minutes DOIT être entre 10 et 60
 """
     
     def make_decision(self, weather_summary: str, 
@@ -178,6 +183,7 @@ IMPORTANT :
             # Construction du prompt
             prompt_start = time.time()
             # Construire le message sans f-string pour éviter les problèmes avec les accolades
+            # Prompt complet pour une réponse détaillée et correcte
             prompt_content = f"""DONNÉES À ANALYSER :
 
 {weather_summary}
@@ -195,7 +201,7 @@ RÉPONDS UNIQUEMENT AVEC LE JSON, SANS TEXTE AVANT OU APRÈS, SANS MARKDOWN, SAN
 {{
     "decision": "IRRIGUER" ou "NE PAS IRRIGUER",
     "duree_minutes": nombre entier,
-    "explication": "ton explication"
+    "explication": "Une explication claire et détaillée en 2-3 phrases expliquant pourquoi cette décision a été prise, en français, adaptée pour un agriculteur. Mentionne spécifiquement l'humidité du sol, le niveau du réservoir et les autres facteurs clés."
 }}"""
             
             messages = [
@@ -205,10 +211,13 @@ RÉPONDS UNIQUEMENT AVEC LE JSON, SANS TEXTE AVANT OU APRÈS, SANS MARKDOWN, SAN
             prompt_duration = time.time() - prompt_start
             logger.info(f"[AGENT] Prompt construit en {prompt_duration:.3f}s")
             
-            # Appel au LLM
-            logger.info(f"[AGENT] Appel au LLM ({LLM_PROVIDER}/{LLM_MODEL})...")
+            # Appel au LLM sans timeout forcé (priorité à la qualité)
+            logger.info(f"[AGENT] Appel au LLM ({LLM_PROVIDER}/{LLM_MODEL}) - Priorité: qualité de réponse...")
             llm_start = time.time()
+            
+            # Appel direct sans timeout forcé
             response = self.llm.invoke(messages)
+            
             llm_duration = time.time() - llm_start
             logger.info(f"[AGENT] ✓ Réponse LLM reçue en {llm_duration:.2f}s")
             
@@ -226,11 +235,9 @@ RÉPONDS UNIQUEMENT AVEC LE JSON, SANS TEXTE AVANT OU APRÈS, SANS MARKDOWN, SAN
             response_text = response_text.strip()
             
             # Correction des doubles accolades (problème avec certains LLM)
-            # Remplacer {{ par { et }} par }
             response_text = response_text.replace('{{', '{').replace('}}', '}')
             
             # Essayer d'extraire le JSON si la réponse contient du texte avant/après
-            # Chercher le premier { et le dernier }
             first_brace = response_text.find('{')
             last_brace = response_text.rfind('}')
             if first_brace != -1 and last_brace != -1 and last_brace > first_brace:
@@ -248,11 +255,31 @@ RÉPONDS UNIQUEMENT AVEC LE JSON, SANS TEXTE AVANT OU APRÈS, SANS MARKDOWN, SAN
             parse_duration = time.time() - parse_start
             logger.info(f"[AGENT] ✓ JSON parsé en {parse_duration:.3f}s")
             
-            # Validation
-            if 'decision' not in decision_data or 'explication' not in decision_data:
-                raise ValueError("Format de réponse invalide: champs manquants")
+            # Validation avec logging détaillé
+            missing_fields = []
+            if 'decision' not in decision_data:
+                missing_fields.append('decision')
+            if 'explication' not in decision_data:
+                missing_fields.append('explication')
+            if 'duree_minutes' not in decision_data:
+                missing_fields.append('duree_minutes')
+            
+            if missing_fields:
+                logger.error(f"[AGENT] Champs manquants dans la réponse: {missing_fields}")
+                logger.error(f"[AGENT] Réponse complète reçue: {json.dumps(decision_data, indent=2, ensure_ascii=False)}")
+                # Essayer de compléter avec des valeurs par défaut
+                if 'decision' not in decision_data:
+                    decision_data['decision'] = 'NE PAS IRRIGUER'
+                    logger.warning("[AGENT] Décision manquante, utilisation de 'NE PAS IRRIGUER' par défaut")
+                if 'explication' not in decision_data:
+                    decision_data['explication'] = "Réponse incomplète du modèle IA"
+                    logger.warning("[AGENT] Explication manquante, utilisation d'une valeur par défaut")
+                if 'duree_minutes' not in decision_data:
+                    decision_data['duree_minutes'] = 0
+                    logger.warning("[AGENT] Durée manquante, utilisation de 0 par défaut")
             
             if decision_data['decision'] not in ['IRRIGUER', 'NE PAS IRRIGUER']:
+                logger.error(f"[AGENT] Décision invalide reçue: '{decision_data['decision']}'")
                 raise ValueError(f"Décision invalide: '{decision_data['decision']}'")
             
             duree = int(decision_data.get('duree_minutes', 0) or 0)
@@ -317,9 +344,6 @@ RÉPONDS UNIQUEMENT AVEC LE JSON, SANS TEXTE AVANT OU APRÈS, SANS MARKDOWN, SAN
         
         # Essayer d'extraire le JSON même s'il est mal formaté
         # Chercher "decision" dans le texte
-        import re
-        
-        # Chercher "decision": "IRRIGUER" ou "decision": "NE PAS IRRIGUER"
         decision_pattern = r'"decision"\s*:\s*"([^"]+)"'
         decision_match = re.search(decision_pattern, response_text, re.IGNORECASE)
         
@@ -335,13 +359,11 @@ RÉPONDS UNIQUEMENT AVEC LE JSON, SANS TEXTE AVANT OU APRÈS, SANS MARKDOWN, SAN
                 logger.warning(f"[AGENT] Décision inconnue: '{decision_found}', utilisation par défaut")
         else:
             # Si pas trouvé dans JSON, chercher dans le texte mais de manière plus précise
-            # Chercher "NE PAS IRRIGUER" en premier (plus spécifique)
             if 'NE PAS IRRIGUER' in response_text.upper() or '"NE PAS IRRIGUER"' in response_text.upper():
                 decision = 'NE PAS IRRIGUER'
                 logger.info("[AGENT] Décision extraite du texte: NE PAS IRRIGUER")
             elif '"IRRIGUER"' in response_text.upper() or (response_text.upper().startswith('IRRIGUER') and 'NE PAS' not in response_text.upper()[:50]):
                 # Vérifier que "IRRIGUER" n'est pas dans une explication négative
-                # Chercher le contexte autour de "IRRIGUER"
                 irriguer_pos = response_text.upper().find('IRRIGUER')
                 if irriguer_pos != -1:
                     context_before = response_text[max(0, irriguer_pos-30):irriguer_pos].upper()
@@ -375,4 +397,3 @@ RÉPONDS UNIQUEMENT AVEC LE JSON, SANS TEXTE AVANT OU APRÈS, SANS MARKDOWN, SAN
             'duree_minutes': duree,
             'explication': explication
         }
-
