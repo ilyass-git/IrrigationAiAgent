@@ -1085,3 +1085,4 @@ Voir section 6.6 pour la liste complète des endpoints API.
 **Version du projet** : 1.0  
 **Auteur** : Équipe de développement IrrigationAiAgent
 
+

@@ -489,6 +489,54 @@
             background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
             margin: 40px 0;
         }
+
+        /* Layout en deux colonnes */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .decision-column {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            height: fit-content;
+        }
+
+        .review-column {
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            height: fit-content;
+        }
+
+        .decision-column .decision-section {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .decision-column .decision-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
     </style>
 </head>
 <body>
@@ -498,108 +546,111 @@
             <p>Décision automatisée basée sur l'IA et l'analyse de données</p>
         </div>
 
+        <!-- Section des données système en haut -->
+        <div class="main-card" style="margin-bottom: 20px;">
+            <h2 style="color: #2e7d32; margin-bottom: 25px; font-size: 1.6em; font-weight: 600; text-align: center;">📊 Données du Système</h2>
+            <div class="info-grid" id="info-grid-top">
+                <!-- Les informations seront chargées dynamiquement -->
+            </div>
+        </div>
+
         <div class="main-card">
-            <div class="decision-section">
-                <h2>État Actuel du Système</h2>
-                
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>Analyse en cours...</p>
-                </div>
-
-                <div id="decision-content">
-                    <div class="switch-container">
-                        <span class="switch-label">Pompe d'Irrigation</span>
-                        <label class="switch">
-                            <input type="checkbox" id="irrigation-switch" disabled>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="decision-text" id="decision-text">Chargement...</div>
-                    
-                    <div class="explication" id="explication">
-                        En attente d'une décision...
-                    </div>
-
-                    <div class="duration-info" id="duration-info">
-                        Durée planifiée : --
-                    </div>
-
-                    <div class="timestamp" id="timestamp"></div>
-                </div>
-
-                <div class="buttons">
-                    <button class="btn-primary" onclick="makeDecision()">
-                        🔄 Lancer la Décision
-                    </button>
-                    <button class="btn-secondary" onclick="refreshStatus()">
-                        🔍 Actualiser
-                    </button>
-                    <button class="btn-danger" id="stop-pump-btn" onclick="stopPump()" disabled>
-                        ⏹️ Arrêter la Pompe
-                    </button>
-                </div>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <div class="scheduler-controls">
-                <h3>⏰ Planification Automatique</h3>
-                <div class="scheduler-input">
-                    <label>Intervalle (heures):</label>
-                    <input type="number" id="interval-hours" value="6" min="1" max="24">
-                    <button class="btn-secondary" onclick="startScheduler()">Démarrer Auto</button>
-                    <button class="btn-danger" onclick="stopScheduler()">Arrêter Auto</button>
-                </div>
-                <div id="scheduler-status"></div>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <div class="review-card">
-                <h3>🧑‍🔬 Avis de l'expert sur la décision actuelle</h3>
-                <p style="margin-bottom: 15px; color: #666;">
-                    Décision évaluée : <strong id="review-current-decision">Aucune décision récente</strong>
-                </p>
-                <form id="review-form" onsubmit="submitReview(event)">
-                    <div class="form-group">
-                        <label for="expert-name">Nom de l'expert</label>
-                        <input type="text" id="expert-name" placeholder="Ex: Ing. agronome Karim">
-                    </div>
-                    <div class="form-group">
-                        <label>Note (1 à 5 étoiles)</label>
-                        <div class="star-picker" id="star-picker">
-                            <span data-value="1" onclick="setReviewStars(1)">★</span>
-                            <span data-value="2" onclick="setReviewStars(2)">★</span>
-                            <span data-value="3" onclick="setReviewStars(3)">★</span>
-                            <span data-value="4" onclick="setReviewStars(4)">★</span>
-                            <span data-value="5" onclick="setReviewStars(5)">★</span>
+            <div class="two-columns">
+                <!-- Colonne gauche : Décisions -->
+                <div class="column decision-column">
+                    <div class="decision-section">
+                        <h2>🎯 Décisions d'Irrigation</h2>
+                        
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p>Analyse en cours...</p>
                         </div>
-                        <input type="hidden" id="review-stars" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="review-comment">Commentaire</label>
-                        <textarea id="review-comment" placeholder="Expliquez pourquoi la décision est bonne ou à ajuster..."></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary">✅ Valider l'avis</button>
-                    <div id="review-message" class="review-message"></div>
-                </form>
 
-                <div class="recent-reviews">
-                    <h4>Derniers avis</h4>
-                    <div id="recent-reviews-list">
-                        <p style="color:#777;">Aucun avis enregistré pour le moment.</p>
+                        <div id="decision-content">
+                            <div class="switch-container">
+                                <span class="switch-label">Pompe d'Irrigation</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="irrigation-switch" disabled>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="decision-text" id="decision-text">Chargement...</div>
+                            
+                            <div class="explication" id="explication">
+                                En attente d'une décision...
+                            </div>
+
+                            <div class="duration-info" id="duration-info">
+                                Durée planifiée : --
+                            </div>
+
+                            <div class="timestamp" id="timestamp"></div>
+                        </div>
+
+                        <div class="buttons">
+                            <button class="btn-primary" onclick="makeDecision()">
+                                🔄 Lancer la Décision
+                            </button>
+                            <button class="btn-secondary" onclick="refreshStatus()">
+                                🔍 Actualiser
+                            </button>
+                            <button class="btn-danger" id="stop-pump-btn" onclick="stopPump()" disabled>
+                                ⏹️ Arrêter la Pompe
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="scheduler-controls" style="margin-top: 30px;">
+                        <h3>⏰ Planification Automatique</h3>
+                        <div class="scheduler-input">
+                            <label>Intervalle (heures):</label>
+                            <input type="number" id="interval-hours" value="6" min="1" max="24">
+                            <button class="btn-secondary" onclick="startScheduler()">Démarrer Auto</button>
+                            <button class="btn-danger" onclick="stopScheduler()">Arrêter Auto</button>
+                        </div>
+                        <div id="scheduler-status"></div>
                     </div>
                 </div>
-            </div>
 
-            <div class="section-divider"></div>
+                <!-- Colonne droite : Avis -->
+                <div class="column review-column">
+                    <div class="review-card" style="margin-top: 0;">
+                        <h3>🧑‍🔬 Avis de l'expert</h3>
+                        <p style="margin-bottom: 15px; color: #666;">
+                            Décision évaluée : <strong id="review-current-decision">Aucune décision récente</strong>
+                        </p>
+                        <form id="review-form" onsubmit="submitReview(event)">
+                            <div class="form-group">
+                                <label for="expert-name">Nom de l'expert</label>
+                                <input type="text" id="expert-name" placeholder="Ex: Ing. agronome Karim">
+                            </div>
+                            <div class="form-group">
+                                <label>Note (1 à 5 étoiles)</label>
+                                <div class="star-picker" id="star-picker">
+                                    <span data-value="1" onclick="setReviewStars(1)">★</span>
+                                    <span data-value="2" onclick="setReviewStars(2)">★</span>
+                                    <span data-value="3" onclick="setReviewStars(3)">★</span>
+                                    <span data-value="4" onclick="setReviewStars(4)">★</span>
+                                    <span data-value="5" onclick="setReviewStars(5)">★</span>
+                                </div>
+                                <input type="hidden" id="review-stars" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="review-comment">Commentaire</label>
+                                <textarea id="review-comment" placeholder="Expliquez pourquoi la décision est bonne ou à ajuster..."></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">✅ Valider l'avis</button>
+                            <div id="review-message" class="review-message"></div>
+                        </form>
 
-            <div style="margin-top: 40px;">
-                <h2 style="color: #2e7d32; margin-bottom: 25px; font-size: 1.6em; font-weight: 600;">📊 Données du Système</h2>
-                <div class="info-grid" id="info-grid">
-                    <!-- Les informations seront chargées dynamiquement -->
+                        <div class="recent-reviews">
+                            <h4>Derniers avis</h4>
+                            <div id="recent-reviews-list">
+                                <p style="color:#777;">Aucun avis enregistré pour le moment.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -638,6 +689,8 @@
                 
                 if (result.success) {
                     updateUI(result.data);
+                    // Rafraîchir aussi les données système
+                    refreshStatus();
                 } else {
                     alert('Erreur: ' + result.error);
                 }
@@ -664,6 +717,7 @@
                 
                 if (statusResult.success) {
                     updateInfoGrid(statusResult.data);
+                    updateInfoGridTop(statusResult.data);
                     renderRecentReviews(statusResult.data.recent_reviews || []);
                 }
             } catch (error) {
@@ -755,58 +809,78 @@
             }
         }
 
+        function updateInfoGridTop(statusData) {
+            const infoGrid = document.getElementById('info-grid-top');
+            const weather = statusData.current_weather || {};
+            const sensors = statusData.current_sensors || {};
+            const pumpState = statusData.pump_state || {};
+            const reviewSummary = statusData.review_summary || {};
+
+            // Déterminer la couleur selon l'humidité du sol
+            let soilMoistureColor = '#66bb6a';
+            let soilMoistureStatus = '✓ Optimal';
+            if (sensors.humidite_sol < 25) {
+                soilMoistureColor = '#e57373';
+                soilMoistureStatus = '⚠️ Critique';
+            } else if (sensors.humidite_sol < 30) {
+                soilMoistureColor = '#ffb74d';
+                soilMoistureStatus = '⚠️ Sec';
+            } else if (sensors.humidite_sol > 70) {
+                soilMoistureColor = '#64b5f6';
+                soilMoistureStatus = '⚠️ Saturé';
+            }
+
+            const pumpStatusLabel = pumpState.running ? 'En marche' : 'Arrêtée';
+
+            infoGrid.innerHTML = `
+                <div class="info-card">
+                    <h3>🌡️ Température Air</h3>
+                    <p style="font-size: 1.2em; font-weight: 600;">${weather.temperature ? weather.temperature.toFixed(1) + '°C' : 'N/A'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>💨 Humidité Air</h3>
+                    <p style="font-size: 1.2em; font-weight: 600;">${weather.humidity ? weather.humidity.toFixed(1) + '%' : 'N/A'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>🌧️ Pluviométrie</h3>
+                    <p style="font-size: 1.2em; font-weight: 600;">${weather.rainfall ? weather.rainfall.toFixed(1) + 'mm' : '0mm'}</p>
+                </div>
+                <div class="info-card" style="border-left: 4px solid ${soilMoistureColor};">
+                    <h3>🌱 Humidité du Sol</h3>
+                    <p style="font-size: 1.3em; font-weight: bold; color: ${soilMoistureColor};">
+                        ${sensors.humidite_sol ? sensors.humidite_sol.toFixed(1) + '%' : 'N/A'}
+                    </p>
+                    <small>${soilMoistureStatus}</small>
+                </div>
+                <div class="info-card">
+                    <h3>🌡️ Température Sol</h3>
+                    <p style="font-size: 1.2em; font-weight: 600;">${sensors.temperature_sol ? sensors.temperature_sol.toFixed(1) + '°C' : 'N/A'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>💧 Réservoir</h3>
+                    <p style="font-size: 1.2em; font-weight: 600;">${sensors.niveau_reservoir ? sensors.niveau_reservoir.toFixed(1) + '%' : 'N/A'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>💨 Évapotranspiration</h3>
+                    <p style="font-size: 1.2em; font-weight: 600;">${sensors.evapotranspiration ? sensors.evapotranspiration.toFixed(1) + ' mm/j' : 'N/A'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>⭐ Avis Experts</h3>
+                    <p style="font-size: 1.2em; font-weight: 600;">${reviewSummary.total_reviews || 0} avis</p>
+                    <small>Note moyenne : ${reviewSummary.average_stars ? reviewSummary.average_stars.toFixed(1) : 'N/A'} / 5</small>
+                </div>
+                <div class="info-card">
+                    <h3>🚰 Pompe</h3>
+                    <p style="font-size: 1.2em; font-weight: 600;">${pumpStatusLabel}</p>
+                </div>
+            `;
+        }
+
         function updateInfoGrid(statusData) {
-            const infoGrid = document.getElementById('info-grid');
             const weather = statusData.current_weather || {};
             const sensors = statusData.current_sensors || {};
             const sensorAlerts = statusData.sensor_alerts || [];
             const pumpState = statusData.pump_state || {};
-            const reviewSummary = statusData.review_summary || {};
-
-            let sensorCards = '';
-            if (sensors.available) {
-                // Déterminer la couleur selon l'humidité du sol (couleurs plus douces)
-                let soilMoistureColor = '#66bb6a'; // Vert doux par défaut
-                if (sensors.humidite_sol < 25) soilMoistureColor = '#e57373'; // Rouge doux
-                else if (sensors.humidite_sol < 30) soilMoistureColor = '#ffb74d'; // Orange doux
-                else if (sensors.humidite_sol > 70) soilMoistureColor = '#64b5f6'; // Bleu doux
-
-                // Déterminer la couleur selon le niveau du réservoir (couleurs plus douces)
-                let reservoirColor = '#66bb6a'; // Vert doux par défaut
-                if (sensors.niveau_reservoir < 20) reservoirColor = '#e57373'; // Rouge doux
-                else if (sensors.niveau_reservoir < 30) reservoirColor = '#ffb74d'; // Orange doux
-
-                sensorCards = `
-                    <div class="info-card" style="border-left: 4px solid ${soilMoistureColor};">
-                        <h3>🌱 Humidité du Sol</h3>
-                        <p style="font-size: 1.3em; font-weight: bold; color: ${soilMoistureColor};">
-                            ${sensors.humidite_sol ? sensors.humidite_sol.toFixed(1) + '%' : 'N/A'}
-                        </p>
-                        <small>${sensors.humidite_sol < 30 ? '⚠️ Sol sec' : sensors.humidite_sol > 70 ? '⚠️ Sol saturé' : '✓ Optimal'}</small>
-                    </div>
-                    <div class="info-card">
-                        <h3>🌡️ Température Sol</h3>
-                        <p>${sensors.temperature_sol ? sensors.temperature_sol.toFixed(1) + '°C' : 'N/A'}</p>
-                    </div>
-                    <div class="info-card" style="border-left: 4px solid ${reservoirColor};">
-                        <h3>💧 Réservoir</h3>
-                        <p style="font-size: 1.3em; font-weight: bold; color: ${reservoirColor};">
-                            ${sensors.niveau_reservoir ? sensors.niveau_reservoir.toFixed(1) + '%' : 'N/A'}
-                        </p>
-                    </div>
-                    <div class="info-card">
-                        <h3>💨 Évapotranspiration</h3>
-                        <p>${sensors.evapotranspiration ? sensors.evapotranspiration.toFixed(1) + ' mm/j' : 'N/A'}</p>
-                    </div>
-                `;
-            } else {
-                sensorCards = `
-                    <div class="info-card">
-                        <h3>📡 Capteurs</h3>
-                        <p style="color: #999;">Données non disponibles</p>
-                    </div>
-                `;
-            }
 
             // Afficher les alertes si présentes
             let alertsHtml = '';
@@ -818,39 +892,6 @@
                     </div>
                 `;
             }
-
-            const pumpStatusLabel = pumpState.running ? 'En marche' : 'Arrêtée';
-            const pumpExtra = pumpState.running && pumpState.stop_at
-                ? `Arrêt prévu à ${new Date(pumpState.stop_at).toLocaleTimeString('fr-FR')}`
-                : pumpState.stopped_at
-                    ? `Dernier arrêt : ${new Date(pumpState.stopped_at).toLocaleTimeString('fr-FR')}`
-                    : '';
-
-            infoGrid.innerHTML = alertsHtml + `
-                <div class="info-card">
-                    <h3>🌡️ Température Air</h3>
-                    <p>${weather.temperature ? weather.temperature.toFixed(1) + '°C' : 'N/A'}</p>
-                </div>
-                <div class="info-card">
-                    <h3>💨 Humidité Air</h3>
-                    <p>${weather.humidity ? weather.humidity.toFixed(1) + '%' : 'N/A'}</p>
-                </div>
-                <div class="info-card">
-                    <h3>🌧️ Pluviométrie</h3>
-                    <p>${weather.rainfall ? weather.rainfall.toFixed(1) + 'mm' : '0mm'}</p>
-                </div>
-                ${sensorCards}
-                <div class="info-card">
-                    <h3>⭐ Avis Experts</h3>
-                    <p>${reviewSummary.total_reviews || 0} avis</p>
-                    <small>Note moyenne : ${reviewSummary.average_stars ? reviewSummary.average_stars.toFixed(1) : 'N/A'} / 5</small>
-                </div>
-                <div class="info-card">
-                    <h3>🚰 Pompe</h3>
-                    <p>${pumpStatusLabel}</p>
-                    <small>${pumpExtra}</small>
-                </div>
-            `;
 
             updatePumpButtonFromState(pumpState);
         }

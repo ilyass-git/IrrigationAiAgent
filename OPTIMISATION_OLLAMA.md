@@ -130,3 +130,4 @@ Si le LLM ne retourne pas tous les champs :
 - Vérifiez les logs pour voir ce qui manque
 - Augmentez légèrement `OLLAMA_NUM_PREDICT` si nécessaire
 
+
